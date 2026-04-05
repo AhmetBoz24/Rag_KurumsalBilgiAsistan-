@@ -28,28 +28,35 @@ def extract_text_from_pdf(pdf_path):
 
 def main():
     BASE_DIR = Path(__file__).parent.parent
-    pdf_path = BASE_DIR / "data" / "58336.pdf"
+    data_dir = BASE_DIR / "data"
     
-    if not pdf_path.exists():
-        print(f"Hata: {pdf_path} dosyası bulunamadı!")
+    pdf_files = list(data_dir.glob("*.pdf"))
+    
+    if not pdf_files:
+        print(f"Hata: {data_dir} klasöründe hiç PDF dosyası bulunamadı!")
         return
     
-    print(f"İşleniyor: {pdf_path.name}...")
-    text = extract_text_from_pdf(pdf_path)
+    print(f"Toplam {len(pdf_files)} adet PDF bulundu. İşleniyor...")
     
-    if text and len(text) > 100:  # En azından anlamlı bir metin olmalı
-        output_path = BASE_DIR / "data" / "corpus.txt"
-        output_path.write_text(text, encoding="utf-8")
-        print(f"✓ BAŞARILI: Tam metin '{output_path}' dosyasına kaydedildi.")
-        print(f"Toplam karakter sayısı: {len(text)}")
+    all_combined_text = ""
+    
+    for pdf_path in pdf_files:
+        print(f"\n--- İşleniyor: {pdf_path.name} ---")
+        text = extract_text_from_pdf(pdf_path)
         
-        # Kritik veri kontrolü
-        if "MADDE 33" in text.upper():
-            print("✓ Doğrulama: MADDE 33 metin içerisinde bulundu.")
+        if text and len(text) > 100:
+            all_combined_text += f"\n\n==== DOKÜMAN BAŞLANGICI: {pdf_path.name} ====\n\n"
+            all_combined_text += text
         else:
-            print("⚠ UYARI: MADDE 33 metin içerisinde bulunamadı! Lütfen PDF'i kontrol edin.")
+            print(f"⚠ Uyarı: {pdf_path.name} dosyasından yeterli metin çıkarılamadı.")
+
+    if len(all_combined_text) > 100:
+        output_path = data_dir / "corpus.txt"
+        output_path.write_text(all_combined_text, encoding="utf-8")
+        print(f"\n✓ BAŞARILI: Tüm PDF'ler birleştirildi ve '{output_path.name}' dosyasına kaydedildi.")
+        print(f"Toplam karakter sayısı: {len(all_combined_text)}")
     else:
-        print("Hata: PDF'den yeterli metin çıkarılamadı.")
+        print("Hata: PDF'lerden yeterli metin çıkarılamadı.")
 
 if __name__ == "__main__":
     main()
