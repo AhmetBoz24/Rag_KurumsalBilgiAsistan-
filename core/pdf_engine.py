@@ -1,62 +1,83 @@
-import fitz  # PyMuPDF
-from pathlib import Path
+"""PDF okuma motoru.
 
-def extract_text_from_pdf(pdf_path):
-    """
-    PyMuPDF kullanarak PDF dosyasındaki metni her sayfayı gezerek ayıklar.
-    Daha yüksek doğruluk ve hız için fitz tercih edilmiştir.
-    """
-    all_text = []
+PyMuPDF (fitz) ile her PDF'i sayfa bazinda okur, temizler ve
+metadata tasiyan yapilara donusturur.
+
+Kullanim:
+    from core.pdf_engine import extract_pages, scan_pdf_dir
+
+    pages = extract_pages("data/58336.pdf")
+    # -> [{"source": "58336.pdf", "page": 1, "text": "..."}, ...]
+"""
+from __future__ import annotations
+from pathlib import Path
+from typing import List, Dict, Iterable
+
+import fitz
+
+from core.text_cleaner import clean_page_text
+
+
+def extract_pages(pdf_path: str | Path) -> List[Dict]:
+    """Tek bir PDF'i sayfa bazinda okur ve temiz metin + metadata dondurur."""
+    pdf_path = Path(pdf_path)
+    pages: List[Dict] = []
+
     try:
         doc = fitz.open(pdf_path)
-        print(f"PDF Açıldı: {pdf_path}")
-        print(f"Toplam Sayfa Sayısı: {len(doc)}")
-        
-        for i, page in enumerate(doc):
-            # "text" modu hiyerarşiyi ve madde numaralarını korumak için iyidir
-            text = page.get_text("text")
-            if text:
-                all_text.append(f"--- SAYFA {i+1} ---\n{text}")
-            else:
-                print(f"Uyarı: Sayfa {i+1} boş görünüyor.")
-        
-        doc.close()
-        return "\n\n".join(all_text)
     except Exception as e:
-        print(f"PDF okuma hatası (PyMuPDF): {e}")
-        return ""
+        print(f"[pdf_engine] PDF acilamadi {pdf_path.name}: {e}")
+        return pages
+
+    print(f"[pdf_engine] {pdf_path.name} -> {len(doc)} sayfa")
+
+    for i, page in enumerate(doc, start=1):
+        raw = page.get_text("text")
+        cleaned = clean_page_text(raw)
+        if len(cleaned) < 20:
+            continue
+        pages.append(
+            {
+                "source": pdf_path.name,
+                "page": i,
+                "text": cleaned,
+            }
+        )
+
+    doc.close()
+    return pages
+
+
+def scan_pdf_dir(data_dir: str | Path) -> Iterable[Path]:
+    """data/ klasorundeki tum PDF dosyalarini dondurur."""
+    data_dir = Path(data_dir)
+    return sorted(data_dir.glob("*.pdf"))
+
 
 def main():
-    BASE_DIR = Path(__file__).parent.parent
-    data_dir = BASE_DIR / "data"
-    
-    pdf_files = list(data_dir.glob("*.pdf"))
-    
-    if not pdf_files:
-        print(f"Hata: {data_dir} klasöründe hiç PDF dosyası bulunamadı!")
-        return
-    
-    print(f"Toplam {len(pdf_files)} adet PDF bulundu. İşleniyor...")
-    
-    all_combined_text = ""
-    
-    for pdf_path in pdf_files:
-        print(f"\n--- İşleniyor: {pdf_path.name} ---")
-        text = extract_text_from_pdf(pdf_path)
-        
-        if text and len(text) > 100:
-            all_combined_text += f"\n\n==== DOKÜMAN BAŞLANGICI: {pdf_path.name} ====\n\n"
-            all_combined_text += text
-        else:
-            print(f"⚠ Uyarı: {pdf_path.name} dosyasından yeterli metin çıkarılamadı.")
+    """CLI: data/ klasorundeki tum PDF'leri okuyup ozet basar."""
+    base_dir = Path(__file__).parent.parent
+    data_dir = base_dir / "data"
 
-    if len(all_combined_text) > 100:
-        output_path = data_dir / "corpus.txt"
-        output_path.write_text(all_combined_text, encoding="utf-8")
-        print(f"\n✓ BAŞARILI: Tüm PDF'ler birleştirildi ve '{output_path.name}' dosyasına kaydedildi.")
-        print(f"Toplam karakter sayısı: {len(all_combined_text)}")
-    else:
-        print("Hata: PDF'lerden yeterli metin çıkarılamadı.")
+    pdfs = list(scan_pdf_dir(data_dir))
+    if not pdfs:
+        print(f"[pdf_engine] {data_dir} altinda PDF yok.")
+        return
+
+    print(f"[pdf_engine] {len(pdfs)} PDF bulundu.")
+    total_pages = 0
+    total_chars = 0
+    for p in pdfs:
+        pages = extract_pages(p)
+        total_pages += len(pages)
+        total_chars += sum(len(pg["text"]) for pg in pages)
+        print(f"  - {p.name}: {len(pages)} dolu sayfa")
+
+    print(
+        f"\n[pdf_engine] Toplam: {total_pages} sayfa, "
+        f"{total_chars:,} karakter."
+    )
+
 
 if __name__ == "__main__":
     main()
