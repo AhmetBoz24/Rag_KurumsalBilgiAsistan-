@@ -1,0 +1,38 @@
+# Yerel ortam
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Build artifaktlari
+*.log
+*_log.txt
+api_log.txt
+install_log*.txt
+pipeline_log.txt
+tmp_*.json
+
+# Yerel chroma (Docker icinde yeniden olusturulacak)
+chroma_db/
+
+# Yerel env (HF secrets uzerinden gelecek)
+.env
+
+# Frontend handoff dokumantlari (artik gereksiz)
+FRONTEND_CONTEXT.md
+FRONTEND_PROMPT.md
+
+# OS
+.DS_Store
+Thumbs.db

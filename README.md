@@ -1,3 +1,15 @@
+---
+title: Gedik Kurumsal Bilgi Asistani
+emoji: 🎓
+colorFrom: red
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+short_description: Istanbul Gedik Universitesi yonetmelik RAG asistani
+---
+
 # Kurumsal Bilgi Asistani — Gedik Universitesi RAG
 
 Universite yonetmelikleri, staj yonergeleri ve SSS metinleri uzerinde
