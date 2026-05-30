@@ -1,4 +1,15 @@
 .env
 __pycache__/
+*.pyc
 venv/
+.venv/
 chroma_db/
+data/corpus.txt
+*.log
+*_log.txt
+api_log.txt
+install_log*.txt
+pipeline_log.txt
+tmp_*.json
+.vscode/
+.idea/
