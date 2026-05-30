@@ -1,9 +1,37 @@
-langchain
-langchain-huggingface
-langchain-chroma
-langchain-groq
-fastapi
-uvicorn
-pymupdf
-python-dotenv
-sentence-transformers
+# --- Web / API ---
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+python-dotenv==1.0.1
+python-multipart==0.0.20
+
+# --- LangChain ekosistemi ---
+langchain>=0.3.13,<0.4
+langchain-core>=0.3.28,<0.4
+langchain-community>=0.3.13,<0.4
+langchain-huggingface>=0.1.2,<0.3
+langchain-chroma>=0.2.0,<0.3
+langchain-groq>=0.2.2,<0.4
+
+# --- Vektor / Retrieval ---
+chromadb>=1.0.0,<1.1
+sentence-transformers>=3.3.1,<5
+rank-bm25==0.2.2
+FlagEmbedding==1.3.3
+
+# --- PDF / NLP ---
+pymupdf==1.25.1
+nltk==3.9.1
+
+# --- Auth ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+
+# --- Rate limit / Cache / Tokens ---
+slowapi==0.1.9
+cachetools==5.5.0
+tiktoken==0.8.0
+
+# --- Yardimci ---
+numpy>=1.26,<3
