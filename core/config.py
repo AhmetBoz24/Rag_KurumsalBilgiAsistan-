@@ -36,6 +36,13 @@ FINAL_TOP_K = int(os.getenv("FINAL_TOP_K", "4"))
 # Reranker (CPU'da cok yavas; GPU'lu deploy'da true yapilabilir)
 ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "true").lower() in ("true", "1", "yes")
 
+<<<<<<< HEAD
+# Kullaniciya gosterilecek kaynak sayisi (LLM yine de FINAL_TOP_K kullanir,
+# bu sadece UI'deki Kaynaklar bolumu icin)
+MAX_SOURCES_RETURNED = int(os.getenv("MAX_SOURCES_RETURNED", "2"))
+
+=======
+>>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
 # --- Chat ---
 MAX_MESSAGE_LEN = int(os.getenv("MAX_MESSAGE_LEN", "1000"))
 MAX_HISTORY_TURNS = int(os.getenv("MAX_HISTORY_TURNS", "5"))  # 5 turn = 10 mesaj
