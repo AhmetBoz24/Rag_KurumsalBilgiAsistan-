@@ -42,10 +42,7 @@ from core.config import (
     GROQ_MODEL,
     MAX_HISTORY_TURNS,
     MAX_MESSAGE_LEN,
-<<<<<<< HEAD
     MAX_SOURCES_RETURNED,
-=======
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
     RATE_LIMIT_PER_DAY,
     RATE_LIMIT_PER_HOUR,
     RATE_LIMIT_PER_MINUTE,
@@ -188,7 +185,6 @@ def to_source_items(docs: List[tuple]) -> List[SourceItem]:
     return out
 
 
-<<<<<<< HEAD
 # Selamlama, tesekkur, aciklama isteme veya konu disi reddi gibi
 # cevaplarda kaynaklar alakasiz oluyor. Bu helper bunlari yakalar.
 _LOW_INFO_TRIGGERS = [
@@ -237,8 +233,6 @@ def filter_sources_for_output(
     return items[:MAX_SOURCES_RETURNED]
 
 
-=======
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
 def format_context(docs: List[tuple]) -> str:
     blocks = []
     for i, (text, md) in enumerate(docs, 1):
@@ -446,14 +440,9 @@ async def chat(request: Request, req: ChatRequest = Body(...)):
         session_store.append(sid, "user", req.message)
         session_store.append(sid, "assistant", answer)
 
-<<<<<<< HEAD
         all_source_items = to_source_items(docs)
         visible_sources = filter_sources_for_output(all_source_items, answer)
         sources_serializable = [s.model_dump() for s in visible_sources]
-=======
-        source_items = to_source_items(docs)
-        sources_serializable = [s.model_dump() for s in source_items]
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
 
         if cache_eligible and answer != REJECT_MESSAGE:
             qa_cache.set(req.message, answer, sources_serializable)
@@ -461,23 +450,14 @@ async def chat(request: Request, req: ChatRequest = Body(...)):
         latency = int((time.time() - t0) * 1000)
         stats.record_chat(latency)
         log.info(
-<<<<<<< HEAD
             f"[chat] sid={sid[:8]} chunks={len(docs)} shown={len(visible_sources)} "
             f"tokens={used} retrieval={retrieval_ms}ms llm={llm_ms}ms total={latency}ms"
-=======
-            f"[chat] sid={sid[:8]} chunks={len(docs)} tokens={used} "
-            f"retrieval={retrieval_ms}ms llm={llm_ms}ms total={latency}ms"
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
         )
 
         return ChatResponse(
             answer=answer,
             session_id=sid,
-<<<<<<< HEAD
             sources=visible_sources,
-=======
-            sources=source_items,
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
             latency_ms=latency,
             cached=False,
         )
@@ -552,16 +532,10 @@ async def chat_stream(request: Request, req: ChatRequest = Body(...)):
             session_store.append(sid, "user", req.message)
             session_store.append(sid, "assistant", full)
 
-<<<<<<< HEAD
             all_source_items = to_source_items(docs)
             visible_sources = filter_sources_for_output(all_source_items, full)
             payload = {
                 "sources": [s.model_dump() for s in visible_sources],
-=======
-            source_items = to_source_items(docs)
-            payload = {
-                "sources": [s.model_dump() for s in source_items],
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
                 "latency_ms": int((time.time() - t0) * 1000),
             }
             yield f"event: sources\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
@@ -570,14 +544,9 @@ async def chat_stream(request: Request, req: ChatRequest = Body(...)):
             stats.record_stream(payload["latency_ms"])
             llm_ms = payload["latency_ms"] - retrieval_ms
             log.info(
-<<<<<<< HEAD
                 f"[stream] sid={sid[:8]} chunks={len(docs)} shown={len(visible_sources)} "
                 f"tokens={used} retrieval={retrieval_ms}ms llm={llm_ms}ms "
                 f"total={payload['latency_ms']}ms"
-=======
-                f"[stream] sid={sid[:8]} chunks={len(docs)} tokens={used} "
-                f"retrieval={retrieval_ms}ms llm={llm_ms}ms total={payload['latency_ms']}ms"
->>>>>>> d16041d0b9ead8a44ee63c8053eebbb2970d0479
             )
         except Exception as e:
             err = str(e).lower()
